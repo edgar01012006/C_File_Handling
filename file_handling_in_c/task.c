@@ -11,36 +11,58 @@ void printChoice() {
 void file_comparison(FILE* ptr1, FILE* ptr2, FILE* tmpptr) {
     const int size = 50;
 
-    char buf1[size];
-    char buf2[size];
+    char buf1[size] = {};
+    char buf2[size] = {};
 
     int user_input = 0;
 
-    while (feof(ptr1) == 0 || feof(ptr2) == 0) { 
-        fgets(buf1, size, ptr1);
-        fgets(buf2, size, ptr2);
+    int flush_flag1 = 1;
+    int flush_flag2 = 1;
+
+    while (feof(ptr1) == 0 || feof(ptr2) == 0) {
+
+        if (flush_flag1 == 1) {
+            memset(buf1, 0, size);
+            fgets(buf1, size, ptr1);
+        }
+        if (flush_flag2 == 1) {
+            memset(buf2, 0, size);
+            fgets(buf2, size, ptr2);
+        }
 
         if (memcmp(buf1, buf2, size) == 0) {
             fputs(buf1, tmpptr);
+            flush_flag1 = 1;
+            flush_flag2 = 1;
         }
         else {
+            printf("File1 line: %s", buf1);
+            printf("File2 line: %s", buf2);
             printChoice();
+
             scanf("%d", &user_input);
+            
             switch(user_input) {
                 case 1:
                     fputs(buf1, tmpptr);
-                    fseek(ptr2, -(int)(sizeof(buf2)/ sizeof(buf2[0])), SEEK_CUR);
+                    flush_flag2 = 0;        
+                    flush_flag1 = 1;
                     break;
                 case 2:
                     fputs(buf2, tmpptr);
-                    fseek(ptr2, -(int)(sizeof(buf1)/ sizeof(buf1[0])), SEEK_CUR);
+                    flush_flag1 = 0;
+                    flush_flag2 = 1;
                     break;
                 case 3:
                     fputs(buf1, tmpptr);
+                    flush_flag1 = 1;
+                    flush_flag2 = 1;
                     break;
                 case 4:
                     fputs(buf2, tmpptr);
-
+                    flush_flag1 = 1;
+                    flush_flag2 = 1;
+                    break;
                 default:
                     printf("wrong input, exiting program\n");
                     return;
